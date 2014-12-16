@@ -42,7 +42,6 @@ def index():
 
             r = requests.get(url)
             print "WOAH K \n \n \n \n"
-            print "TEXT: \n", r.text
 
         except:
             errors.append('Unable to get URL.')
