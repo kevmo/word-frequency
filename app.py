@@ -37,10 +37,11 @@ def index():
 
             url = request.form['url']
 
-            if 'http://' not in url[:7] and 'https://' not in url[:8]:
+            if 'http://' not in url[:7] or 'https://' not in url[:8]:
                 url = 'http://' + url
 
             r = requests.get(url)
+            print "WOAH K \n \n \n \n"
             print "TEXT: \n", r.text
 
         except:
@@ -49,7 +50,7 @@ def index():
                                    errors=errors)
 
         if r:
-
+            print "HEROKU MADE IT HERE\n \n \n \n"
             # text processing
             raw = BeautifulSoup(r.text).get_text()
             nltk.data.path.append('./nltk_data/')  # set the path
