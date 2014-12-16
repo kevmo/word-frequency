@@ -36,16 +36,15 @@ def index():
         try:
 
             url = request.form['url']
-            print url[:7]
 
-            if 'http://' not in url[:7]:
+            if 'http://' not in url[:7] and 'https://' not in url[:8]:
                 url = 'http://' + url
 
             r = requests.get(url)
-            print r.text
+            print "TEXT: \n", r.text
 
         except:
-            errors.append('Unable to get URL. only supports http://')
+            errors.append('Unable to get URL.')
             return render_template('index.html',
                                    errors=errors)
 
