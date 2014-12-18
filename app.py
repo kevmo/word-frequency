@@ -4,13 +4,15 @@ import nltk
 import operator
 from collections import Counter
 
-
 import requests
+from rq import Queue
+from rq.job import Job
 from flask import Flask, render_template, request
 from flask.ext.sqlalchemy import SQLAlchemy
 from bs4 import BeautifulSoup
 
 from stop_words import stops
+from worker import conn
 
 #################
 # configuration #
@@ -19,6 +21,8 @@ from stop_words import stops
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
 db = SQLAlchemy(app)
+
+q = Queue(connection=conn)
 
 from models import *
 
