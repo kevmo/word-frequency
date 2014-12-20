@@ -26,6 +26,26 @@ q = Queue(connection=conn)
 
 from models import *
 
+##########
+# helper #
+##########
+
+
+def count_and_save_words(url):
+    errors = []
+
+    try:
+        r = requests.get(url)
+
+    except:
+        errors.append("Unable to get URL. Please make sure it's valid and try again")
+
+        return {"error": errors}
+
+    # text processing
+    raw = BeautifulSoup(r.text).get_text()
+    nltk.data.path.append
+
 
 ##########
 # routes #
@@ -33,59 +53,20 @@ from models import *
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    errors = []
     results = {}
     if request.method == 'POST':
 
-        try:
+        url = request.form['url']
 
-            url = request.form['url']
+        if 'http://' not in url[:7] or 'https://' not in url[:8]:
+            url = 'http://' + url
 
-            if 'http://' not in url[:7] or 'https://' not in url[:8]:
-                url = 'http://' + url
+        job = q.enqueue_call(
+            func=count_and_save_words, args=(url,), result_ttl=5000
+        )
+        print job.get_id()
 
-            r = requests.get(url)
-            print "WOAH K \n \n \n \n"
-
-        except:
-            errors.append('Unable to get URL.')
-            return render_template('index.html',
-                                   errors=errors)
-
-        if r:
-            print "HEROKU MADE IT HERE\n \n \n \n"
-            # text processing
-            raw = BeautifulSoup(r.text).get_text()
-            nltk.data.path.append('./nltk_data/')  # set the path
-            tokens = nltk.word_tokenize(raw)
-            text = nltk.Text(tokens)
-
-            # remove punctuation, count raw words
-            nonPunct = re.compile('.*[A-Za-z].*')
-            raw_words = [w for w in text if nonPunct.match(w)]
-            raw_word_count = Counter(raw_words)
-
-            # stop words
-            no_stop_words = [w for w in raw_words if w.lower() not in stops]
-            no_stop_words_count = Counter(no_stop_words)
-
-            # save the results
-            results = sorted(
-                no_stop_words_count.items(),
-                key=operator.itemgetter(1),
-                reverse=True
-            )
-            try:
-                result = Result(
-                    url=url,
-                    result_all=raw_word_count,
-                    result_no_stop_words=no_stop_words_count
-                )
-                db.session.add(result)
-                db.session.commit()
-            except:
-                errors.append("Unable to add item to database.")
-    return render_template('index.html', errors=errors, results=results)
+    return render_template('index.html', results=results)
 
 
 # fucking delete this
